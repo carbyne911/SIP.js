@@ -1,7 +1,6 @@
 _SpecRunner.html
 npm-debug.log
 node_modules/
-dist/
 src/**/*.js
 temp/
 test/spec/*.spec.js
