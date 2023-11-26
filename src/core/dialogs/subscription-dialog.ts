@@ -1,21 +1,20 @@
-import { Logger } from "../log";
-import {
-  C,
-  IncomingRequestMessage,
-  NameAddrHeader,
-  OutgoingRequestMessage,
-  OutgoingSubscribeRequest,
-  OutgoingSubscribeRequestDelegate,
-  RequestOptions
-} from "../messages";
-import { Subscription, SubscriptionDelegate, SubscriptionState } from "../subscription";
-import { Timers } from "../timers";
-import { AllowedMethods } from "../user-agent-core/allowed-methods";
-import { UserAgentCore } from "../user-agent-core/user-agent-core";
-import { NotifyUserAgentServer } from "../user-agents/notify-user-agent-server";
-import { ReSubscribeUserAgentClient } from "../user-agents/re-subscribe-user-agent-client";
-import { Dialog } from "./dialog";
-import { DialogState } from "./dialog-state";
+import { NameAddrHeader } from "../../grammar/name-addr-header.js";
+import { Logger } from "../log/logger.js";
+import { C } from "../messages/methods/constants.js";
+import { IncomingRequestMessage } from "../messages/incoming-request-message.js";
+import { OutgoingRequestMessage } from "../messages/outgoing-request-message.js";
+import { OutgoingSubscribeRequest } from "../messages/methods/subscribe.js";
+import { OutgoingSubscribeRequestDelegate } from "../messages/methods/subscribe.js";
+import { RequestOptions } from "../messages/outgoing-request.js";
+import { Subscription, SubscriptionState } from "../subscription/subscription.js";
+import { SubscriptionDelegate } from "../subscription/subscription-delegate.js";
+import { Timers } from "../timers.js";
+import { AllowedMethods } from "../user-agent-core/allowed-methods.js";
+import { UserAgentCore } from "../user-agent-core/user-agent-core.js";
+import { NotifyUserAgentServer } from "../user-agents/notify-user-agent-server.js";
+import { ReSubscribeUserAgentClient } from "../user-agents/re-subscribe-user-agent-client.js";
+import { Dialog } from "./dialog.js";
+import { DialogState } from "./dialog-state.js";
 
 /**
  * Subscription Dialog.
@@ -318,10 +317,12 @@ export class SubscriptionDialog extends Dialog implements Subscription {
       clearTimeout(this.N);
       this.N = undefined;
     }
-    // When refreshing a subscription, a subscriber starts Timer N, set to
-    // 64*T1, when it sends the SUBSCRIBE request.
-    // https://tools.ietf.org/html/rfc6665#section-4.1.2.2
-    this.N = setTimeout(() => this.timerN(), Timers.TIMER_N);
+    if (!options.extraHeaders?.includes("Expires: 0")) {
+      // When refreshing a subscription, a subscriber starts Timer N, set to
+      // 64*T1, when it sends the SUBSCRIBE request.
+      // https://tools.ietf.org/html/rfc6665#section-4.1.2.2
+      this.N = setTimeout(() => this.timerN(), Timers.TIMER_N);
+    }
     return uac;
   }
 
@@ -341,9 +342,8 @@ export class SubscriptionDialog extends Dialog implements Subscription {
    * 4.1.2.3.  Unsubscribing
    * https://tools.ietf.org/html/rfc6665#section-4.1.2.3
    */
-  public unsubscribe(): OutgoingSubscribeRequest {
+  public unsubscribe(options: RequestOptions = {}): OutgoingSubscribeRequest {
     const allowHeader = "Allow: " + AllowedMethods.toString();
-    const options: RequestOptions = {};
     options.extraHeaders = (options.extraHeaders || []).slice();
     options.extraHeaders.push(allowHeader);
     options.extraHeaders.push("Event: " + this.subscriptionEvent);

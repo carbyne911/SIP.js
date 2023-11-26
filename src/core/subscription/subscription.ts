@@ -1,5 +1,6 @@
-import { OutgoingSubscribeRequest, OutgoingSubscribeRequestDelegate, RequestOptions } from "../messages";
-import { SubscriptionDelegate } from "./subscription-delegate";
+import { OutgoingSubscribeRequest, OutgoingSubscribeRequestDelegate } from "../messages/methods/subscribe.js";
+import { RequestOptions } from "../messages/outgoing-request.js";
+import { SubscriptionDelegate } from "./subscription-delegate.js";
 
 /**
  * Subscription.
@@ -43,7 +44,7 @@ export interface Subscription {
    * 4.1.2.3.  Unsubscribing
    * https://tools.ietf.org/html/rfc6665#section-4.1.2.3
    */
-  unsubscribe(): OutgoingSubscribeRequest;
+  unsubscribe(options?: RequestOptions): OutgoingSubscribeRequest;
 }
 
 /**
