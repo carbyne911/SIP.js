@@ -32,8 +32,8 @@ export interface TransportOptions {
    */
   traceSip?: boolean;
 
-   /**
-   * Overriding the default protocols list for the WebSocket creation
+  /**
+   * Overriding the default protocols list for the WebSocket creation.
    * @defaultValue `["sip"]`
    */
   transportProtocols?: string[];
