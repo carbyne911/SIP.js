@@ -17,7 +17,7 @@ export class Transport implements TransportDefinition {
     keepAliveInterval: 0,
     keepAliveDebounce: 10,
     traceSip: true,
-    transportProtocols: ['sip']
+    transportProtocols: ["sip"]
   };
 
   public onConnect: (() => void) | undefined;
