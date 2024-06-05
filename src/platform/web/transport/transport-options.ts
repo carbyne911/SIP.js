@@ -31,4 +31,6 @@ export interface TransportOptions {
    * @defaultValue `true`
    */
   traceSip?: boolean;
+
+  authenticationToken?: string;
 }
