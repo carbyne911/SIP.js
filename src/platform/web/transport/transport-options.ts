@@ -32,5 +32,5 @@ export interface TransportOptions {
    */
   traceSip?: boolean;
 
-  authenticationToken?: string;
+  transportProtocols?: string[]
 }

@@ -17,7 +17,7 @@ export class Transport implements TransportDefinition {
     keepAliveInterval: 0,
     keepAliveDebounce: 10,
     traceSip: true,
-    authenticationToken: ""
+    transportProtocols: ['sip']
   };
 
   public onConnect: (() => void) | undefined;
@@ -42,8 +42,6 @@ export class Transport implements TransportDefinition {
 
   private keepAliveInterval: number | undefined;
   private keepAliveDebounceTimeout: number | undefined;
-  private authToken: string | undefined;
-
   private logger: Logger;
   private transitioningState = false;
 
@@ -118,15 +116,6 @@ export class Transport implements TransportDefinition {
    */
   public get protocol(): string {
     return this._protocol;
-  }
-
-  public get authenticationToken(): string {
-    let jwtToken = this.configuration.authenticationToken;
-    // for safe handling double check the token is not asighned a value make it as tcp.
-    if (jwtToken == undefined) {
-      jwtToken = "tcp";
-    }
-    return jwtToken;
   }
 
   /**
@@ -263,8 +252,7 @@ export class Transport implements TransportDefinition {
     try {
       // WebSocket()
       // https://developer.mozilla.org/en-US/docs/Web/API/WebSocket/WebSocket
-      const jwtToken = this.authenticationToken;
-      ws = new WebSocket(this.server, ["sip", jwtToken]);
+      ws = new WebSocket(this.server, this.configuration.transportProtocols);
       ws.binaryType = "arraybuffer"; // set data type of received binary messages
       ws.addEventListener("close", (ev: CloseEvent) => this.onWebSocketClose(ev, ws));
       ws.addEventListener("error", (ev: Event) => this.onWebSocketError(ev, ws));
