@@ -16,7 +16,8 @@ export class Transport implements TransportDefinition {
     connectionTimeout: 5,
     keepAliveInterval: 0,
     keepAliveDebounce: 10,
-    traceSip: true
+    traceSip: true,
+    transportProtocols: ["sip"]
   };
 
   public onConnect: (() => void) | undefined;
@@ -41,7 +42,6 @@ export class Transport implements TransportDefinition {
 
   private keepAliveInterval: number | undefined;
   private keepAliveDebounceTimeout: number | undefined;
-
   private logger: Logger;
   private transitioningState = false;
 
@@ -252,7 +252,8 @@ export class Transport implements TransportDefinition {
     try {
       // WebSocket()
       // https://developer.mozilla.org/en-US/docs/Web/API/WebSocket/WebSocket
-      ws = new WebSocket(this.server, "sip");
+      const transportProtocols = [...new Set(this.configuration.transportProtocols)];
+      ws = new WebSocket(this.server, transportProtocols);
       ws.binaryType = "arraybuffer"; // set data type of received binary messages
       ws.addEventListener("close", (ev: CloseEvent) => this.onWebSocketClose(ev, ws));
       ws.addEventListener("error", (ev: Event) => this.onWebSocketError(ev, ws));
