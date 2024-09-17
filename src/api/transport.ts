@@ -1,6 +1,7 @@
 import { Transport as CoreTransport } from "../core/transport.js";
 import { Emitter } from "./emitter.js";
 import { TransportState } from "./transport-state.js";
+import { TransportOptions } from "../platform/web/transport/transport-options.js";
 
 /**
  * Transport layer interface expected by the `UserAgent`.
@@ -166,4 +167,6 @@ export interface Transport extends CoreTransport {
    * @param message - Message to send.
    */
   send(message: string): Promise<void>;
+
+  configuration: TransportOptions;
 }

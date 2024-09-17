@@ -29,7 +29,7 @@ export class Transport implements TransportDefinition {
   private _stateEventEmitter: EmitterImpl<TransportState>;
   private _ws: WebSocket | undefined;
 
-  private configuration: Required<TransportOptions>;
+  public configuration: Required<TransportOptions>;
 
   private connectPromise: Promise<void> | undefined;
   private connectResolve: (() => void) | undefined;
