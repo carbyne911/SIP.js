@@ -1,5 +1,6 @@
 import { Emitter, EmitterImpl, Transport, TransportState } from "../../../lib/api/index.js";
 import { Logger } from "../../../lib/core/index.js";
+import { TransportOptions } from "../../../lib/platform/web/index.js";
 
 type ResolveFunction = () => void;
 type RejectFunction = (reason: Error) => void;
@@ -17,12 +18,24 @@ export class TransportFake implements Transport {
   private waitingForReceivePromise: Promise<void> | undefined;
   private waitingForReceiveResolve: ResolveFunction | undefined;
   private waitingForReceiveReject: RejectFunction | undefined;
+  public configuration: Required<TransportOptions>;
 
   private _receiveDropOnce = false;
   private _state: TransportState = TransportState.Disconnected;
   private _stateEventEmitter = new EmitterImpl<TransportState>();
 
-  constructor(private logger: Logger) {}
+  private static defaultOptions: Required<TransportOptions> = {
+    server: "",
+    connectionTimeout: 5,
+    keepAliveInterval: 0,
+    keepAliveDebounce: 10,
+    traceSip: true,
+    transportProtocols: ["sip"]
+  };
+
+  constructor(private logger: Logger) {
+    this.configuration = TransportFake.defaultOptions;
+  }
 
   public set id(id: string) {
     this._id = id;
