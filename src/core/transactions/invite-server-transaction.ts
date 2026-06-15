@@ -194,12 +194,13 @@ export class InviteServerTransaction extends ServerTransaction {
           this.stateTransition(TransactionState.Accepted);
           this.send(response)
             .then(() => {
+              this.logger.log("2xx response sent successfully — storing lastFinalResponse to enable retransmission.");
               this.lastFinalResponse = response;
             })
             .catch((error: TransportError) => {
               this.logTransportError(
                 error,
-                "Failed to send 2xx response. Terminating transaction to release session resources and prevent orphaned session on transport reconnect."
+                "Failed to send 2xx response. Suppressing retransmission and terminating transaction to release session resources and prevent orphaned session on transport reconnect."
               );
               this.stateTransition(TransactionState.Terminated);
             });
