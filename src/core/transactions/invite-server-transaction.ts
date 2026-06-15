@@ -191,11 +191,15 @@ export class InviteServerTransaction extends ServerTransaction {
         // transition to the "Accepted" state.
         // https://tools.ietf.org/html/rfc6026#section-8.5
         if (statusCode >= 200 && statusCode <= 299) {
-          this.lastFinalResponse = response;
           this.stateTransition(TransactionState.Accepted);
-          this.send(response).catch((error: TransportError) => {
-            this.logTransportError(error, "Failed to send 2xx response.");
-          });
+          this.send(response)
+            .then(() => {
+              this.lastFinalResponse = response;
+            })
+            .catch((error: TransportError) => {
+              this.logTransportError(error, "Failed to send 2xx response. Terminating transaction to release session resources and prevent orphaned session on transport reconnect.");
+              this.stateTransition(TransactionState.Terminated);
+            });
           return;
         }
         // While in the "Proceeding" state, if the TU passes a response with
