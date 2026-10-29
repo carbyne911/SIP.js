@@ -32,6 +32,13 @@ export interface UserAgentCoreConfiguration {
   aor: URI;
 
   /**
+   * Format of the Call-ID generated for new requests.
+   * @remarks
+   * `"legacy"` prefixes the Call-ID with `sipjsId`. `"uuid"` uses a random (version 4) UUID.
+   */
+  callIdFormat: "legacy" | "uuid";
+
+  /**
    * Contact.
    * @remarks
    * https://tools.ietf.org/html/rfc3261#section-8.1.1.8

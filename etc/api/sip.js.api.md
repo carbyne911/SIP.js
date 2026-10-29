@@ -33,6 +33,9 @@ export class Bye {
 }
 
 // @public
+export type CallIdFormat = "legacy" | "uuid";
+
+// @public
 export class Cancel {
     // @internal
     constructor(incomingCancelRequest: IncomingRequestMessage);
@@ -829,6 +832,7 @@ export interface UserAgentOptions {
     authorizationHa1?: string;
     authorizationPassword?: string;
     authorizationUsername?: string;
+    callIdFormat?: CallIdFormat;
     contactName?: string;
     contactParams?: {
         [name: string]: string;

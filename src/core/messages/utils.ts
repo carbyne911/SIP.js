@@ -92,6 +92,21 @@ export function createRandomToken(size: number, base = 32): string {
 }
 
 /**
+ * Generate a random (version 4) UUID.
+ * @internal
+ */
+export function newUUID(): string {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
+    const r: number = Math.floor(Math.random() * 16);
+    const v: number = c === "x" ? r : (r % 4) + 8;
+    return v.toString(16);
+  });
+}
+
+/**
  * @internal
  */
 export function getReasonPhrase(code: number): string {

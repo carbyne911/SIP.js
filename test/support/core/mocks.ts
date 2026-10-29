@@ -234,6 +234,7 @@ export function makeUserAgentCoreConfigurationFromUserAgent(ua: UserAgent): User
   // core configuration
   const userAgentCoreConfiguration: UserAgentCoreConfiguration = {
     aor: ua.configuration.uri,
+    callIdFormat: "legacy",
     contact: ua.contact,
     displayName: ua.configuration.displayName,
     loggerFactory: ua.getLoggerFactory(),

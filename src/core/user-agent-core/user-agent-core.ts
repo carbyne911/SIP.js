@@ -9,6 +9,7 @@ import { IncomingResponseMessage } from "../messages/incoming-response-message.j
 import { OutgoingRequest, OutgoingRequestDelegate } from "../messages/outgoing-request.js";
 import { OutgoingRequestMessage, OutgoingRequestMessageOptions } from "../messages/outgoing-request-message.js";
 import { constructOutgoingResponse, OutgoingResponse, ResponseOptions } from "../messages/outgoing-response.js";
+import { newUUID } from "../messages/utils.js";
 import { OutgoingInviteRequest, OutgoingInviteRequestDelegate } from "../messages/methods/invite.js";
 import { OutgoingMessageRequest } from "../messages/methods/message.js";
 import { OutgoingPublishRequest } from "../messages/methods/publish.js";
@@ -195,7 +196,8 @@ export class UserAgentCore {
     body?: Body
   ): OutgoingRequestMessage {
     // default values from user agent configuration
-    const callIdPrefix = this.configuration.sipjsId;
+    const callIdDefaults: OutgoingRequestMessageOptions =
+      this.configuration.callIdFormat === "uuid" ? { callId: newUUID() } : { callIdPrefix: this.configuration.sipjsId };
     const fromDisplayName = this.configuration.displayName;
     const forceRport = this.configuration.viaForceRport;
     const hackViaTcp = this.configuration.hackViaTcp;
@@ -211,7 +213,7 @@ export class UserAgentCore {
     const viaHost = this.configuration.viaHost;
 
     const defaultOptions: OutgoingRequestMessageOptions = {
-      callIdPrefix,
+      ...callIdDefaults,
       forceRport,
       fromDisplayName,
       hackViaTcp,
@@ -228,6 +230,19 @@ export class UserAgentCore {
     };
 
     return new OutgoingRequestMessage(method, requestURI, fromURI, toURI, requestOptions, extraHeaders, body);
+  }
+
+  /**
+   * True if an outgoing request with this Call-ID is in progress.
+   * @param callId - Call-ID to look up.
+   */
+  public hasOutgoingRequestWithCallId(callId: string): boolean {
+    for (const uac of this.userAgentClients.values()) {
+      if (uac.message.callId === callId) {
+        return true;
+      }
+    }
+    return false;
   }
 
   /**

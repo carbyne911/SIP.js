@@ -18,7 +18,7 @@ import { TransportError } from "../core/exceptions/transport-error.js";
 import { UserAgentCore } from "../core/user-agent-core/user-agent-core.js";
 import { UserAgentCoreConfiguration } from "../core/user-agent-core/user-agent-core-configuration.js";
 import { UserAgentCoreDelegate } from "../core/user-agent-core/user-agent-core-delegate.js";
-import { createRandomToken, utf8Length } from "../core/messages/utils.js";
+import { createRandomToken, newUUID, utf8Length } from "../core/messages/utils.js";
 import { defaultSessionDescriptionHandlerFactory } from "../platform/web/session-description-handler/session-description-handler-factory-default.js";
 import { Transport as WebTransport } from "../platform/web/transport/transport.js";
 import { LIBRARY_VERSION } from "../version.js";
@@ -223,7 +223,7 @@ export class UserAgent {
     this._contact = this.initContact();
 
     // Set instance id
-    this._instanceId = this.options.instanceId ? this.options.instanceId : UserAgent.newUUID();
+    this._instanceId = this.options.instanceId ? this.options.instanceId : newUUID();
     if (Grammar.parse(this._instanceId, "uuid") === -1) {
       throw new Error("Invalid instanceId.");
     }
@@ -258,6 +258,7 @@ export class UserAgent {
       authorizationHa1: "",
       authorizationPassword: "",
       authorizationUsername: "",
+      callIdFormat: "legacy",
       delegate: {},
       contactName: "",
       contactParams: { transport: "ws" },
@@ -292,16 +293,6 @@ export class UserAgent {
       userAgentString: "SIP.js/" + LIBRARY_VERSION,
       viaHost: ""
     };
-  }
-
-  // http://stackoverflow.com/users/109538/broofa
-  private static newUUID(): string {
-    const UUID: string = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
-      const r: number = Math.floor(Math.random() * 16);
-      const v: number = c === "x" ? r : (r % 4) + 8;
-      return v.toString(16);
-    });
-    return UUID;
   }
 
   /**
@@ -692,6 +683,7 @@ export class UserAgent {
     // core configuration
     const userAgentCoreConfiguration: UserAgentCoreConfiguration = {
       aor: this.options.uri,
+      callIdFormat: this.options.callIdFormat,
       contact: this.contact,
       displayName: this.options.displayName,
       loggerFactory: this.loggerFactory,
@@ -951,7 +943,11 @@ export class UserAgent {
       // FIXME: This is non-standard and should be a configurable behavior (desirable regardless).
       // Custom SIP.js check to reject request from ourself (this instance of SIP.js).
       // This is port of SanityCheck.rfc3261_16_3_4().
-      if (!message.toTag && message.callId.substr(0, 5) === this.options.sipjsId) {
+      const looped =
+        this.options.callIdFormat === "uuid"
+          ? this.userAgentCore.hasOutgoingRequestWithCallId(message.callId)
+          : message.callId.substr(0, 5) === this.options.sipjsId;
+      if (!message.toTag && looped) {
         this.userAgentCore.replyStateless(message, { statusCode: 482 });
         return;
       }
