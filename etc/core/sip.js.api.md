@@ -1210,6 +1210,7 @@ export class UserAgentCore {
     delegate: UserAgentCoreDelegate;
     dialogs: Map<string, Dialog>;
     dispose(): void;
+    hasOutgoingRequestWithCallId(callId: string): boolean;
     invite(request: OutgoingRequestMessage, delegate?: OutgoingInviteRequestDelegate): OutgoingInviteRequest;
     get loggerFactory(): LoggerFactory;
     makeOutgoingRequestMessage(method: string, requestURI: URI, fromURI: URI, toURI: URI, options: OutgoingRequestMessageOptions, extraHeaders?: Array<string>, body?: Body): OutgoingRequestMessage;
@@ -1231,6 +1232,7 @@ export class UserAgentCore {
 // @public
 export interface UserAgentCoreConfiguration {
     aor: URI;
+    callIdFormat: "legacy" | "uuid";
     // Warning: (ae-incompatible-release-tags) The symbol "authenticationFactory" is marked as @public, but its signature references "DigestAuthentication" which is marked as @internal
     authenticationFactory(): DigestAuthentication | undefined;
     contact: Contact;

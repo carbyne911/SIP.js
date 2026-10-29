@@ -17,6 +17,15 @@ export type LogLevel = "debug" | "log" | "warn" | "error";
 export type LogConnector = (level: LogLevel, category: string, label: string | undefined, content: string) => void;
 
 /**
+ * Format of the Call-ID generated for new requests.
+ * @remarks
+ * `"legacy"` - The 5 character `sipjsId` followed by 15 random characters.
+ * `"uuid"` - A random (version 4) UUID.
+ * @public
+ */
+export type CallIdFormat = "legacy" | "uuid";
+
+/**
  * SIP extension support level.
  * @public
  */
@@ -56,6 +65,16 @@ export interface UserAgentOptions {
    * @defaultValue `""`
    */
   authorizationUsername?: string;
+
+  /**
+   * Format of the Call-ID generated for new requests.
+   * @remarks
+   * Also selects how a request looped back to this user agent is detected and rejected with a 482.
+   * With `"legacy"` it is an initial request whose Call-ID starts with `sipjsId`.
+   * With `"uuid"` it is an initial request whose Call-ID matches an outgoing request still in progress.
+   * @defaultValue `"legacy"`
+   */
+  callIdFormat?: CallIdFormat;
 
   /**
    * The user portion of user agent's contact URI.
